@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "npm run dev",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "test-api": "node test-api.js"
   },
   "dependencies": {
     "react": "^18.3.1",
