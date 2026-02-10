@@ -32,11 +32,20 @@ export default async function handler(req, res) {
     const result = await client.query(query);
 
     if (result.rows.length < 2) {
+      const churnRate = result.rows[0]?.churn_rate ? parseFloat(result.rows[0].churn_rate) : 0;
+      
+      // Set CORS headers for frontend access
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      
       return res.status(200).json({
         success: true,
         data: {
-          churn_rate: result.rows[0]?.churn_rate || 0,
-          growth_percentage: 0
+          churn_rate: churnRate,
+          growth_percentage: 0,
+          current_date: result.rows[0]?.date || null,
+          previous_date: null
         }
       });
     }
@@ -45,10 +54,11 @@ export default async function handler(req, res) {
     const currentMonth = result.rows[0];
     const previousMonth = result.rows[1];
 
-    // Calculate month-over-month growth percentage
+    // Parse churn rates as floats
     const currentChurn = parseFloat(currentMonth.churn_rate);
     const previousChurn = parseFloat(previousMonth.churn_rate);
     
+    // Calculate month-over-month change in percentage points
     let growthPercentage = 0;
     if (previousChurn > 0) {
       growthPercentage = ((currentChurn - previousChurn) / previousChurn) * 100;
@@ -73,6 +83,11 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Database error:', error);
+    
+    // Set CORS headers even for error responses
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
     // Return error response
     res.status(500).json({
