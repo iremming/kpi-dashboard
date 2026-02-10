@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "npm run dev",
     "seed": "node scripts/seed.js",
-    "test-api": "node test-api.js"
+    "test-api": "node test-api.js",
+    "test-churn-api": "node test-churn-rate-api.js"
   },
   "dependencies": {
     "react": "^18.3.1",
