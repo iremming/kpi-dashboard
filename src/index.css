@@ -32,3 +32,29 @@ h2 {
   border-bottom: 1px solid #30363d;
   padding-bottom: 0.5rem;
 }
+
+.chart-container {
+  margin-bottom: 2rem;
+  background: #1f2937;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .app {
+    padding: 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  .chart-container {
+    margin-bottom: 1.5rem;
+  }
+}
