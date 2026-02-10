@@ -73,10 +73,10 @@ const ChurnRateCard = () => {
         alignItems: 'center'
       }}>
         <h4 style={{
-          color: '#f9fafb',
-          fontSize: '14px',
+          color: '#9ca3af',
+          fontSize: '13px',
           fontWeight: '500',
-          margin: '0 0 12px 0',
+          margin: '0 0 8px 0',
           textTransform: 'uppercase',
           letterSpacing: '0.5px'
         }}>
@@ -106,10 +106,10 @@ const ChurnRateCard = () => {
         alignItems: 'center'
       }}>
         <h4 style={{
-          color: '#f9fafb',
-          fontSize: '14px',
+          color: '#9ca3af',
+          fontSize: '13px',
           fontWeight: '500',
-          margin: '0 0 12px 0',
+          margin: '0 0 8px 0',
           textTransform: 'uppercase',
           letterSpacing: '0.5px'
         }}>
@@ -140,10 +140,10 @@ const ChurnRateCard = () => {
         alignItems: 'center'
       }}>
         <h4 style={{
-          color: '#f9fafb',
-          fontSize: '14px',
+          color: '#9ca3af',
+          fontSize: '13px',
           fontWeight: '500',
-          margin: '0 0 12px 0',
+          margin: '0 0 8px 0',
           textTransform: 'uppercase',
           letterSpacing: '0.5px'
         }}>
@@ -161,8 +161,10 @@ const ChurnRateCard = () => {
 
   // Inverse color logic: negative growth (decreasing churn) is good (green)
   // positive growth (increasing churn) is bad (red)
-  const growthColor = data.growth_percentage <= 0 ? '#10b981' : '#ef4444';
-  const growthIcon = data.growth_percentage <= 0 ? '↘' : '↗';
+  // Use down arrow for decreasing churn (good), up arrow for increasing churn (bad)
+  const isChurnDecreasing = data.growth_percentage <= 0;
+  const growthColor = isChurnDecreasing ? '#10b981' : '#ef4444';
+  const growthIcon = isChurnDecreasing ? '↘' : '↗';
 
   return (
     <div style={{
@@ -196,7 +198,7 @@ const ChurnRateCard = () => {
           fontSize: '32px',
           fontWeight: '700',
           lineHeight: '1',
-          fontFamily: 'monospace'
+          fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace'
         }}>
           {formatPercentage(data.churn_rate)}
         </div>
@@ -214,7 +216,7 @@ const ChurnRateCard = () => {
           }}>
             {growthIcon}
           </span>
-          {formatPercentageChange(data.growth_percentage)}
+          {formatPercentageChange(Math.abs(data.growth_percentage))}
         </div>
       </div>
     </div>
