@@ -33,6 +33,14 @@ h2 {
   padding-bottom: 0.5rem;
 }
 
+/* Metric cards row layout */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
 .chart-container {
   margin-bottom: 2rem;
   background: #1f2937;
@@ -54,7 +62,25 @@ h2 {
     font-size: 1.25rem;
   }
   
+  .metrics-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
   .chart-container {
     margin-bottom: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .metrics-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1440px) {
+  .metrics-row {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
