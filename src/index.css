@@ -33,6 +33,106 @@ h2 {
   padding-bottom: 0.5rem;
 }
 
+/* App Loading and Error States */
+.app-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+}
+
+.app-loading p {
+  color: #8b949e;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+}
+
+.app-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+  background: #21262d;
+  border: 1px solid #f85149;
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.app-error p {
+  color: #f85149;
+  font-size: 1.1rem;
+  margin: 1rem 0;
+}
+
+/* Error Boundary Styles */
+.error-boundary {
+  background: #21262d;
+  border: 1px solid #f85149;
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.error-boundary h2 {
+  color: #f85149;
+  margin-bottom: 1rem;
+  border-bottom: none;
+}
+
+.error-boundary p {
+  color: #c9d1d9;
+  margin-bottom: 1rem;
+}
+
+.error-boundary details {
+  margin: 1rem 0;
+  text-align: left;
+}
+
+.error-boundary summary {
+  color: #8b949e;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.error-boundary pre {
+  background: #0d1117;
+  color: #f85149;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow: auto;
+  font-size: 0.875rem;
+  border: 1px solid #30363d;
+}
+
+/* Retry Button Styles */
+.retry-button {
+  background: #238636;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.retry-button:hover {
+  background: #2ea043;
+}
+
+.retry-button:active {
+  background: #1a7f37;
+}
+
 /* Chart Container Styles */
 .chart-container {
   background: #161b22;
