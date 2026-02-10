@@ -1,5 +1,6 @@
 import NorthAmericaRevenueChart from './components/NorthAmericaRevenueChart.jsx';
 import ActiveUsersCard from './components/ActiveUsersCard.jsx';
+import ChurnRateCard from './components/ChurnRateCard.jsx';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       {/* Top row with metric cards */}
       <div className="metrics-row">
         <ActiveUsersCard />
+        <ChurnRateCard />
       </div>
       
       {/* North America Revenue Chart */}
