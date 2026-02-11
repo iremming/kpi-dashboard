@@ -251,7 +251,7 @@ const RevenueByRegionChart = () => {
             />
             <Bar 
               dataKey="revenue" 
-              fill="#60a5fa"
+              fill={(entry) => entry.fill}
               radius={[4, 4, 0, 0]}
               animationDuration={1000}
             />
