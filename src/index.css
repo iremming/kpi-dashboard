@@ -110,6 +110,28 @@ h2 {
   overflow: hidden;
 }
 
+/* Charts grid layout for multiple charts */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Revenue by region specific chart styling */
+.revenue-by-region-chart {
+  width: 100%;
+  min-height: 400px;
+}
+
+.revenue-by-region-chart .recharts-bar {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.revenue-by-region-chart .recharts-bar:hover {
+  opacity: 0.8;
+}
+
 /* Responsive design for mobile devices */
 @media (max-width: 640px) {
   .app {
@@ -142,6 +164,20 @@ h2 {
   .chart-container {
     margin-bottom: 1.5rem;
   }
+  
+  .charts-grid {
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .revenue-by-region-chart {
+    min-height: 350px;
+  }
+  
+  /* Adjust bar chart for mobile viewing */
+  .revenue-by-region-chart .recharts-cartesian-axis-tick-value {
+    font-size: 10px;
+  }
 }
 
 /* Tablet breakpoint */
@@ -154,6 +190,14 @@ h2 {
   .metric-card {
     min-width: 220px;
   }
+  
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .revenue-by-region-chart {
+    min-height: 380px;
+  }
 }
 
 /* Desktop - small screens */
@@ -165,6 +209,14 @@ h2 {
   
   .metric-card {
     min-width: 240px;
+  }
+  
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .revenue-by-region-chart {
+    min-height: 400px;
   }
 }
 
@@ -179,6 +231,15 @@ h2 {
   .metric-card {
     min-width: 260px;
   }
+  
+  .charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 1200px;
+  }
+  
+  .revenue-by-region-chart {
+    min-height: 380px;
+  }
 }
 
 /* Extra large screens */
@@ -189,5 +250,14 @@ h2 {
   
   .metrics-row {
     max-width: 1400px;
+  }
+  
+  .charts-grid {
+    max-width: 1400px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .revenue-by-region-chart {
+    min-height: 400px;
   }
 }
