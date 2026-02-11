@@ -110,6 +110,100 @@ h2 {
   overflow: hidden;
 }
 
+/* Bar chart specific container styles */
+.bar-chart-container {
+  background-color: #1f2937;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid #374151;
+  transition: all 0.2s ease-in-out;
+}
+
+.bar-chart-container:hover {
+  border-color: #4b5563;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Bar chart header */
+.bar-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.bar-chart-title {
+  color: #f9fafb;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.bar-chart-best-badge {
+  background-color: #10b981;
+  color: #f9fafb;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Bar chart content area */
+.bar-chart-content {
+  height: 350px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Bar chart footer */
+.bar-chart-footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #6b7280;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Bar chart legend */
+.bar-chart-legend {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #9ca3af;
+  flex-wrap: wrap;
+}
+
+.bar-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bar-chart-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.bar-chart-legend-color.best {
+  background-color: #10b981;
+}
+
+.bar-chart-legend-color.other {
+  background-color: #60a5fa;
+}
+
 /* Responsive design for mobile devices */
 @media (max-width: 640px) {
   .app {
@@ -142,6 +236,35 @@ h2 {
   .chart-container {
     margin-bottom: 1.5rem;
   }
+  
+  .bar-chart-container {
+    padding: 16px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .bar-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .bar-chart-title {
+    font-size: 16px;
+  }
+  
+  .bar-chart-content {
+    height: 280px;
+  }
+  
+  .bar-chart-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .bar-chart-legend {
+    gap: 12px;
+  }
 }
 
 /* Tablet breakpoint */
@@ -153,6 +276,14 @@ h2 {
   
   .metric-card {
     min-width: 220px;
+  }
+  
+  .bar-chart-container {
+    padding: 20px;
+  }
+  
+  .bar-chart-content {
+    height: 320px;
   }
 }
 
@@ -189,5 +320,9 @@ h2 {
   
   .metrics-row {
     max-width: 1400px;
+  }
+  
+  .bar-chart-container {
+    padding: 28px;
   }
 }
