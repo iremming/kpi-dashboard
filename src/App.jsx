@@ -1,4 +1,5 @@
 import NorthAmericaRevenueChart from './components/NorthAmericaRevenueChart.jsx';
+import RevenueByRegionChart from './components/RevenueByRegionChart.jsx';
 import ActiveUsersCard from './components/ActiveUsersCard.jsx';
 import ChurnRateCard from './components/ChurnRateCard.jsx';
 
@@ -17,6 +18,11 @@ function App() {
       {/* North America Revenue Chart */}
       <div className="chart-container">
         <NorthAmericaRevenueChart />
+      </div>
+      
+      {/* Revenue by Region Chart */}
+      <div className="chart-container">
+        <RevenueByRegionChart />
       </div>
       
       <p>Dashboard features will be built by Epicraft agent.</p>
