@@ -41,8 +41,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 /**
- * North America Revenue Chart Component
- * Displays revenue trends for North America over the past 12 months
+ * Multi-Region Revenue Chart Component
+ * Displays revenue trends for all regions over the past 12 months
  */
 const NorthAmericaRevenueChart = () => {
   const [data, setData] = useState([]);
@@ -67,9 +67,11 @@ const NorthAmericaRevenueChart = () => {
           throw new Error(result.error || 'Failed to fetch revenue data');
         }
         
-        setData(result.data || []);
+        // Transform data to group by month with all regions
+        const transformedData = transformMultiRegionData(result.data || []);
+        setData(transformedData);
       } catch (err) {
-        console.error('Error fetching North America revenue data:', err);
+        console.error('Error fetching revenue data:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -78,6 +80,39 @@ const NorthAmericaRevenueChart = () => {
 
     fetchRevenueData();
   }, []);
+
+  /**
+   * Transform multi-region API data into chart format
+   * Groups revenue data by month with separate line for each region
+   */
+  const transformMultiRegionData = (apiData) => {
+    if (!apiData || apiData.length === 0) return [];
+
+    // Group data by month
+    const monthlyData = {};
+    
+    apiData.forEach(item => {
+      const month = item.month;
+      if (!monthlyData[month]) {
+        monthlyData[month] = {
+          month: month,
+          date: item.date
+        };
+      }
+      
+      // Add revenue for this region to the month
+      const regionKey = item.region.replace(/\s+/g, '_'); // Convert spaces to underscores for key
+      monthlyData[month][regionKey] = item.revenue;
+      
+      // Also store with original name for display
+      monthlyData[month][item.region] = item.revenue;
+    });
+
+    // Convert to array and sort by date
+    const chartData = Object.values(monthlyData).sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    return chartData;
+  };
 
   if (loading) {
     return (
@@ -94,7 +129,7 @@ const NorthAmericaRevenueChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          North America Revenue Trend
+          Revenue Trends by Region
         </h3>
         <div style={{
           height: '300px',
@@ -124,7 +159,7 @@ const NorthAmericaRevenueChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          North America Revenue Trend
+          Revenue Trends by Region
         </h3>
         <div style={{
           height: '300px',
@@ -157,7 +192,7 @@ const NorthAmericaRevenueChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          North America Revenue Trend
+          Revenue Trends by Region
         </h3>
         <div style={{
           height: '300px',
@@ -171,6 +206,20 @@ const NorthAmericaRevenueChart = () => {
       </div>
     );
   }
+
+  // Define colors for each region
+  const regionColors = {
+    'North America': '#60a5fa',
+    'Europe': '#34d399',
+    'Asia Pacific': '#fbbf24',
+    'Latin America': '#f87171'
+  };
+
+  // Get all regions that have data
+  const regions = ['North America', 'Europe', 'Asia Pacific', 'Latin America'];
+  const availableRegions = regions.filter(region => 
+    data.some(item => item[region] !== undefined)
+  );
 
   return (
     <div style={{
@@ -186,7 +235,7 @@ const NorthAmericaRevenueChart = () => {
         fontSize: '18px',
         fontWeight: '600'
       }}>
-        North America Revenue Trend
+        Revenue Trends by Region
       </h3>
       
       <div style={{ height: '350px' }}>
@@ -219,28 +268,88 @@ const NorthAmericaRevenueChart = () => {
               tickFormatter={formatCurrency}
             />
             <Tooltip 
-              content={<CustomTooltip />}
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div style={{
+                      backgroundColor: '#1f2937',
+                      border: '1px solid #374151',
+                      borderRadius: '6px',
+                      padding: '12px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
+                    }}>
+                      <p style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '14px', fontWeight: '500' }}>
+                        {label}
+                      </p>
+                      {payload.map((entry, index) => (
+                        <p key={index} style={{ 
+                          color: entry.color, 
+                          margin: '4px 0', 
+                          fontSize: '14px', 
+                          fontWeight: '600' 
+                        }}>
+                          {entry.dataKey}: {formatCurrency(entry.value)}
+                        </p>
+                      ))}
+                    </div>
+                  );
+                }
+                return null;
+              }}
             />
-            <Line 
-              type="monotone" 
-              dataKey="revenue" 
-              stroke="#60a5fa" 
-              strokeWidth={3}
-              dot={{ fill: '#60a5fa', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, fill: '#60a5fa', stroke: '#1f2937', strokeWidth: 2 }}
-              animationDuration={1000}
-            />
+            
+            {/* Render a line for each region */}
+            {availableRegions.map((region) => (
+              <Line 
+                key={region}
+                type="monotone" 
+                dataKey={region}
+                stroke={regionColors[region]} 
+                strokeWidth={3}
+                dot={{ fill: regionColors[region], strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, fill: regionColors[region], stroke: '#1f2937', strokeWidth: 2 }}
+                animationDuration={1000}
+                connectNulls={false}
+              />
+            ))}
           </LineChart>
         </ResponsiveContainer>
       </div>
       
+      {/* Legend */}
       <div style={{
         marginTop: '16px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '16px',
+        justifyContent: 'center'
+      }}>
+        {availableRegions.map((region) => (
+          <div key={region} style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '12px',
+            color: '#9ca3af'
+          }}>
+            <div style={{
+              width: '12px',
+              height: '3px',
+              backgroundColor: regionColors[region],
+              borderRadius: '2px'
+            }}></div>
+            <span>{region}</span>
+          </div>
+        ))}
+      </div>
+      
+      <div style={{
+        marginTop: '12px',
         fontSize: '13px',
         color: '#6b7280',
         textAlign: 'center'
       }}>
-        Showing {data.length} months of revenue data
+        Showing {data.length} months of revenue data for {availableRegions.length} regions
       </div>
     </div>
   );
