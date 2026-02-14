@@ -16,7 +16,7 @@ const formatCurrency = (value) => {
 };
 
 /**
- * Custom tooltip component for the line chart
+ * Custom tooltip component for the multi-region line chart
  */
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -41,6 +41,15 @@ const CustomTooltip = ({ active, payload, label }) => {
             {entry.name}: {formatCurrency(entry.value)}
           </p>
         ))}
+        <div style={{
+          marginTop: '8px',
+          paddingTop: '8px',
+          borderTop: '1px solid #374151',
+          fontSize: '12px',
+          color: '#9ca3af'
+        }}>
+          Total: {formatCurrency(payload.reduce((sum, entry) => sum + entry.value, 0))}
+        </div>
       </div>
     );
   }
@@ -196,6 +205,15 @@ const NorthAmericaRevenueChart = () => {
     LatinAmerica: 'Latin America'
   };
 
+  // Calculate totals for the footer
+  const totalDataPoints = data.length;
+  const latestMonth = data[data.length - 1];
+  const latestTotal = latestMonth ? 
+    (latestMonth.NorthAmerica || 0) + 
+    (latestMonth.Europe || 0) + 
+    (latestMonth.AsiaPacific || 0) + 
+    (latestMonth.LatinAmerica || 0) : 0;
+
   return (
     <div style={{
       backgroundColor: '#1f2937',
@@ -248,7 +266,8 @@ const NorthAmericaRevenueChart = () => {
             <Legend 
               wrapperStyle={{
                 paddingTop: '20px',
-                fontSize: '14px'
+                fontSize: '14px',
+                color: '#f9fafb'
               }}
               iconType="line"
             />
@@ -263,6 +282,7 @@ const NorthAmericaRevenueChart = () => {
               dot={{ fill: regionColors.NorthAmerica, strokeWidth: 2, r: 4 }}
               activeDot={{ r: 6, fill: regionColors.NorthAmerica, stroke: '#1f2937', strokeWidth: 2 }}
               animationDuration={1000}
+              connectNulls={false}
             />
             <Line 
               type="monotone" 
@@ -273,6 +293,7 @@ const NorthAmericaRevenueChart = () => {
               dot={{ fill: regionColors.Europe, strokeWidth: 2, r: 4 }}
               activeDot={{ r: 6, fill: regionColors.Europe, stroke: '#1f2937', strokeWidth: 2 }}
               animationDuration={1000}
+              connectNulls={false}
             />
             <Line 
               type="monotone" 
@@ -283,6 +304,7 @@ const NorthAmericaRevenueChart = () => {
               dot={{ fill: regionColors.AsiaPacific, strokeWidth: 2, r: 4 }}
               activeDot={{ r: 6, fill: regionColors.AsiaPacific, stroke: '#1f2937', strokeWidth: 2 }}
               animationDuration={1000}
+              connectNulls={false}
             />
             <Line 
               type="monotone" 
@@ -293,6 +315,7 @@ const NorthAmericaRevenueChart = () => {
               dot={{ fill: regionColors.LatinAmerica, strokeWidth: 2, r: 4 }}
               activeDot={{ r: 6, fill: regionColors.LatinAmerica, stroke: '#1f2937', strokeWidth: 2 }}
               animationDuration={1000}
+              connectNulls={false}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -300,11 +323,35 @@ const NorthAmericaRevenueChart = () => {
       
       <div style={{
         marginTop: '16px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         fontSize: '13px',
         color: '#6b7280',
+        flexWrap: 'wrap',
+        gap: '8px'
+      }}>
+        <div>
+          Showing {totalDataPoints} months of revenue data across all regions
+        </div>
+        {latestMonth && (
+          <div style={{
+            color: '#10b981',
+            fontWeight: '500'
+          }}>
+            Latest Total: {formatCurrency(latestTotal)} ({latestMonth.month})
+          </div>
+        )}
+      </div>
+      
+      <div style={{
+        marginTop: '8px',
+        fontSize: '12px',
+        color: '#6b7280',
+        fontStyle: 'italic',
         textAlign: 'center'
       }}>
-        Showing {data.length} months of revenue data across all regions • Multiple lines demonstrate Recharts LineChart capabilities
+        Multiple lines demonstrate Recharts LineChart capabilities • Enhanced tooltip shows all regions • Interactive legend
       </div>
     </div>
   );
