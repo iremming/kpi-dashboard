@@ -16,31 +16,6 @@ const formatCurrency = (value) => {
 };
 
 /**
- * Custom tooltip component for the line chart
- */
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div style={{
-        backgroundColor: '#1f2937',
-        border: '1px solid #374151',
-        borderRadius: '6px',
-        padding: '12px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
-      }}>
-        <p style={{ color: '#f9fafb', margin: 0, fontSize: '14px', fontWeight: '500' }}>
-          {label}
-        </p>
-        <p style={{ color: '#60a5fa', margin: '4px 0 0 0', fontSize: '16px', fontWeight: '600' }}>
-          {formatCurrency(payload[0].value)}
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
-/**
  * Multi-Region Revenue Chart Component
  * Displays revenue trends for all regions over the past 12 months
  */
@@ -101,10 +76,6 @@ const NorthAmericaRevenueChart = () => {
       }
       
       // Add revenue for this region to the month
-      const regionKey = item.region.replace(/\s+/g, '_'); // Convert spaces to underscores for key
-      monthlyData[month][regionKey] = item.revenue;
-      
-      // Also store with original name for display
       monthlyData[month][item.region] = item.revenue;
     });
 
