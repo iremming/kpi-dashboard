@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 /**
  * Format currency values for display
@@ -13,6 +13,53 @@ const formatCurrency = (value) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   }).format(value);
+};
+
+/**
+ * Custom tooltip component for multi-region revenue chart
+ */
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{
+        backgroundColor: '#1f2937',
+        border: '1px solid #374151',
+        borderRadius: '6px',
+        padding: '12px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
+      }}>
+        <p style={{ 
+          color: '#f9fafb', 
+          margin: '0 0 8px 0', 
+          fontSize: '14px', 
+          fontWeight: '500' 
+        }}>
+          {label}
+        </p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ 
+            color: entry.color, 
+            margin: '4px 0', 
+            fontSize: '14px', 
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <span style={{
+              width: '12px',
+              height: '3px',
+              backgroundColor: entry.color,
+              borderRadius: '2px',
+              display: 'inline-block'
+            }}></span>
+            {entry.dataKey}: {formatCurrency(entry.value)}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
 };
 
 /**
@@ -209,15 +256,15 @@ const NorthAmericaRevenueChart = () => {
         Revenue Trends by Region
       </h3>
       
-      <div style={{ height: '350px' }}>
+      <div style={{ height: '400px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
             margin={{
               top: 20,
               right: 30,
-              left: 20,
-              bottom: 5,
+              left: 40,
+              bottom: 60,
             }}
           >
             <CartesianGrid 
@@ -231,42 +278,32 @@ const NorthAmericaRevenueChart = () => {
               tickLine={false}
               tick={{ fill: '#9ca3af', fontSize: 12 }}
               interval="preserveStartEnd"
+              angle={-45}
+              textAnchor="end"
+              height={60}
             />
             <YAxis 
               axisLine={false}
               tickLine={false}
               tick={{ fill: '#9ca3af', fontSize: 12 }}
               tickFormatter={formatCurrency}
+              width={80}
             />
             <Tooltip 
-              content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div style={{
-                      backgroundColor: '#1f2937',
-                      border: '1px solid #374151',
-                      borderRadius: '6px',
-                      padding: '12px',
-                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
-                    }}>
-                      <p style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '14px', fontWeight: '500' }}>
-                        {label}
-                      </p>
-                      {payload.map((entry, index) => (
-                        <p key={index} style={{ 
-                          color: entry.color, 
-                          margin: '4px 0', 
-                          fontSize: '14px', 
-                          fontWeight: '600' 
-                        }}>
-                          {entry.dataKey}: {formatCurrency(entry.value)}
-                        </p>
-                      ))}
-                    </div>
-                  );
-                }
-                return null;
+              content={<CustomTooltip />}
+            />
+            <Legend 
+              verticalAlign="top"
+              height={36}
+              iconType="line"
+              wrapperStyle={{
+                paddingBottom: '20px',
+                fontSize: '12px',
+                color: '#9ca3af'
               }}
+              formatter={(value) => (
+                <span style={{ color: '#9ca3af', fontSize: '12px' }}>{value}</span>
+              )}
             />
             
             {/* Render a line for each region */}
@@ -285,33 +322,6 @@ const NorthAmericaRevenueChart = () => {
             ))}
           </LineChart>
         </ResponsiveContainer>
-      </div>
-      
-      {/* Legend */}
-      <div style={{
-        marginTop: '16px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '16px',
-        justifyContent: 'center'
-      }}>
-        {availableRegions.map((region) => (
-          <div key={region} style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '12px',
-            color: '#9ca3af'
-          }}>
-            <div style={{
-              width: '12px',
-              height: '3px',
-              backgroundColor: regionColors[region],
-              borderRadius: '2px'
-            }}></div>
-            <span>{region}</span>
-          </div>
-        ))}
       </div>
       
       <div style={{
