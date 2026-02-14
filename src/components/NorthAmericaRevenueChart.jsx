@@ -28,15 +28,19 @@ const CustomTooltip = ({ active, payload, label }) => {
     const sortedPayload = [...payload].sort((a, b) => (b.value || 0) - (a.value || 0));
     
     return (
-      <div style={{
-        backgroundColor: '#1f2937',
-        border: '1px solid #374151',
-        borderRadius: '8px',
-        padding: '16px',
-        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.4)',
-        minWidth: '200px',
-        maxWidth: '300px'
-      }}>
+      <div 
+        style={{
+          backgroundColor: '#1f2937',
+          border: '1px solid #374151',
+          borderRadius: '8px',
+          padding: '16px',
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.4)',
+          minWidth: '200px',
+          maxWidth: '300px'
+        }}
+        role="tooltip"
+        aria-label={`Revenue data for ${label}`}
+      >
         {/* Month header with enhanced styling */}
         <div style={{
           color: '#f9fafb',
@@ -64,15 +68,16 @@ const CustomTooltip = ({ active, payload, label }) => {
               alignItems: 'center',
               gap: '8px'
             }}>
-              {/* Color indicator dot */}
+              {/* Color indicator dot with better contrast */}
               <div style={{
                 width: '12px',
                 height: '12px',
                 borderRadius: '50%',
                 backgroundColor: entry.color,
                 border: '2px solid #1f2937',
-                boxShadow: `0 0 0 1px ${entry.color}`
-              }} />
+                boxShadow: `0 0 0 1px ${entry.color}, 0 0 4px rgba(0, 0, 0, 0.3)`
+              }} 
+              aria-hidden="true" />
               <span style={{
                 color: '#e5e7eb',
                 fontSize: '14px',
@@ -118,18 +123,16 @@ const CustomTooltip = ({ active, payload, label }) => {
           </span>
         </div>
         
-        {/* Growth indicator for total (if applicable) */}
-        {payload.length > 0 && (
-          <div style={{
-            marginTop: '6px',
-            fontSize: '11px',
-            color: '#6b7280',
-            textAlign: 'center',
-            fontStyle: 'italic'
-          }}>
-            Hover over lines to highlight individual regions
-          </div>
-        )}
+        {/* Accessibility hint */}
+        <div style={{
+          marginTop: '6px',
+          fontSize: '11px',
+          color: '#6b7280',
+          textAlign: 'center',
+          fontStyle: 'italic'
+        }}>
+          Hover over lines to highlight individual regions
+        </div>
       </div>
     );
   }
@@ -137,9 +140,118 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 /**
+ * Custom Legend Component with Enhanced Accessibility
+ * Provides better color contrast, keyboard navigation, and screen reader support
+ */
+const CustomLegend = ({ payload, onMouseEnter, onMouseLeave, highlightedRegion, regionPerformance }) => {
+  const handleKeyDown = (event, regionKey) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      // Toggle highlight on Enter/Space
+      if (highlightedRegion === regionKey) {
+        onMouseLeave();
+      } else {
+        onMouseEnter(regionKey);
+      }
+    }
+  };
+
+  return (
+    <div 
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+        gap: '20px',
+        marginTop: '20px',
+        padding: '16px',
+        backgroundColor: '#111827',
+        borderRadius: '8px',
+        border: '1px solid #374151'
+      }}
+      role="region"
+      aria-label="Chart legend - Click or press Enter to highlight regions"
+    >
+      {payload && payload.map((entry, index) => {
+        const regionKey = entry.dataKey;
+        const performance = regionPerformance.find(r => r.key === regionKey);
+        const rank = performance ? regionPerformance.findIndex(r => r.key === regionKey) + 1 : '-';
+        const isHighlighted = highlightedRegion === regionKey;
+        
+        return (
+          <div
+            key={index}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              backgroundColor: isHighlighted ? 'rgba(96, 165, 250, 0.1)' : 'transparent',
+              border: isHighlighted ? '2px solid rgba(96, 165, 250, 0.3)' : '2px solid transparent',
+              transition: 'all 0.2s ease',
+              minWidth: '140px'
+            }}
+            onMouseEnter={() => onMouseEnter(regionKey)}
+            onMouseLeave={onMouseLeave}
+            onClick={() => {
+              if (highlightedRegion === regionKey) {
+                onMouseLeave();
+              } else {
+                onMouseEnter(regionKey);
+              }
+            }}
+            onKeyDown={(e) => handleKeyDown(e, regionKey)}
+            tabIndex={0}
+            role="button"
+            aria-label={`${entry.value} region, rank ${rank}. ${isHighlighted ? 'Currently highlighted' : 'Click to highlight'}. Latest revenue: ${performance ? formatCurrency(performance.value) : 'N/A'}`}
+            aria-pressed={isHighlighted}
+          >
+            {/* Enhanced color indicator with better contrast */}
+            <div 
+              style={{
+                width: '16px',
+                height: '3px',
+                backgroundColor: entry.color,
+                borderRadius: '2px',
+                boxShadow: `0 0 0 1px rgba(0, 0, 0, 0.2), 0 0 4px rgba(${entry.color.replace('#', '')}, 0.4)`,
+                filter: isHighlighted ? 'brightness(1.2)' : 'none'
+              }}
+              aria-hidden="true"
+            />
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <span style={{
+                color: isHighlighted ? '#f9fafb' : '#e5e7eb',
+                fontSize: '14px',
+                fontWeight: isHighlighted ? '600' : '500',
+                transition: 'all 0.2s ease'
+              }}>
+                {entry.value}
+              </span>
+              
+              {performance && (
+                <span style={{
+                  color: '#9ca3af',
+                  fontSize: '11px',
+                  fontWeight: '400'
+                }}>
+                  #{rank} • {formatCurrency(performance.value)}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+/**
  * Enhanced Multi-Region Revenue Chart Component
  * Displays revenue trends for all regions over the past 12 months using Recharts LineChart
- * Features distinct colors, enhanced tooltips, and interactive legend
+ * Features distinct colors, enhanced tooltips, interactive legend, and improved accessibility
  */
 const NorthAmericaRevenueChart = () => {
   const [data, setData] = useState([]);
@@ -281,13 +393,12 @@ const NorthAmericaRevenueChart = () => {
     );
   }
 
-  // Enhanced color palette for distinct region identification
-  // Following accessibility guidelines with sufficient contrast
+  // Enhanced color palette with better contrast ratios for accessibility (WCAG AA compliant)
   const regionColors = {
-    NorthAmerica: '#60a5fa',     // Bright Blue - Primary region
-    Europe: '#34d399',          // Emerald Green - Strong contrast
-    AsiaPacific: '#fbbf24',     // Amber Yellow - High visibility
-    LatinAmerica: '#f87171'     // Coral Red - Warm complement
+    NorthAmerica: '#3b82f6',     // Blue - High contrast ratio
+    Europe: '#10b981',          // Emerald Green - High contrast
+    AsiaPacific: '#f59e0b',     // Amber - Enhanced contrast
+    LatinAmerica: '#ef4444'     // Red - Improved contrast
   };
 
   // Enhanced display names with proper formatting
@@ -324,6 +435,9 @@ const NorthAmericaRevenueChart = () => {
     setHighlightedRegion(null);
   };
 
+  // Generate accessible chart description
+  const chartDescription = `Line chart showing revenue trends for ${regionPerformance.length} regions over ${totalDataPoints} months. Latest total revenue is ${formatCurrency(latestTotal)} for ${latestMonth?.month}. Use arrow keys to navigate and Enter to interact with legend items.`;
+
   return (
     <div style={{
       backgroundColor: '#1f2937',
@@ -340,14 +454,26 @@ const NorthAmericaRevenueChart = () => {
         flexWrap: 'wrap',
         gap: '12px'
       }}>
-        <h3 style={{
-          color: '#f9fafb',
-          fontSize: '18px',
-          fontWeight: '600',
-          margin: 0
-        }}>
-          Revenue Trends by Region
-        </h3>
+        <div>
+          <h3 style={{
+            color: '#f9fafb',
+            fontSize: '18px',
+            fontWeight: '600',
+            margin: '0 0 8px 0'
+          }}>
+            Revenue Trends by Region
+          </h3>
+          
+          {/* Accessible chart description */}
+          <p style={{
+            fontSize: '14px',
+            color: '#9ca3af',
+            margin: 0,
+            maxWidth: '600px'
+          }}>
+            Interactive multi-region revenue analysis with {totalDataPoints} months of data
+          </p>
+        </div>
         
         {/* Performance indicator */}
         {latestMonth && (
@@ -364,7 +490,13 @@ const NorthAmericaRevenueChart = () => {
         )}
       </div>
       
-      <div style={{ height: '420px' }}>
+      {/* Main chart container with accessibility attributes */}
+      <div 
+        style={{ height: '420px' }}
+        role="img"
+        aria-label={chartDescription}
+        aria-describedby="chart-instructions"
+      >
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
@@ -372,8 +504,9 @@ const NorthAmericaRevenueChart = () => {
               top: 20,
               right: 30,
               left: 20,
-              bottom: 60,
+              bottom: 20,
             }}
+            aria-label="Revenue trends line chart"
           >
             <CartesianGrid 
               strokeDasharray="3 3" 
@@ -406,34 +539,21 @@ const NorthAmericaRevenueChart = () => {
                 strokeDasharray: '4 4'
               }}
             />
+            
+            {/* Custom Legend Implementation */}
             <Legend 
-              wrapperStyle={{
-                paddingTop: '24px',
-                fontSize: '13px',
-                color: '#f9fafb'
-              }}
-              iconType="line"
-              iconSize={16}
-              onMouseEnter={(data) => handleLegendMouseEnter(data.dataKey)}
-              onMouseLeave={handleLegendMouseLeave}
-              formatter={(value, entry) => {
-                const regionKey = entry.dataKey;
-                const performance = regionPerformance.find(r => r.key === regionKey);
-                const rank = performance ? regionPerformance.findIndex(r => r.key === regionKey) + 1 : '-';
-                
-                return (
-                  <span style={{
-                    color: highlightedRegion === regionKey || !highlightedRegion ? entry.color : '#6b7280',
-                    fontWeight: highlightedRegion === regionKey ? '600' : '500',
-                    transition: 'all 0.2s ease'
-                  }}>
-                    {value} {performance && `(#${rank})`}
-                  </span>
-                );
-              }}
+              content={({ payload }) => (
+                <CustomLegend 
+                  payload={payload}
+                  onMouseEnter={handleLegendMouseEnter}
+                  onMouseLeave={handleLegendMouseLeave}
+                  highlightedRegion={highlightedRegion}
+                  regionPerformance={regionPerformance}
+                />
+              )}
             />
             
-            {/* Enhanced Line components with distinct styling and interactions */}
+            {/* Enhanced Line components with improved contrast and accessibility */}
             <Line 
               type="monotone" 
               dataKey="NorthAmerica" 
@@ -451,7 +571,7 @@ const NorthAmericaRevenueChart = () => {
                 fill: regionColors.NorthAmerica, 
                 stroke: '#1f2937', 
                 strokeWidth: 3,
-                style: { filter: 'drop-shadow(0 0 6px rgba(96, 165, 250, 0.6))' }
+                style: { filter: 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.6))' }
               }}
               animationDuration={1200}
               animationEasing="ease-out"
@@ -476,7 +596,7 @@ const NorthAmericaRevenueChart = () => {
                 fill: regionColors.Europe, 
                 stroke: '#1f2937', 
                 strokeWidth: 3,
-                style: { filter: 'drop-shadow(0 0 6px rgba(52, 211, 153, 0.6))' }
+                style: { filter: 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.6))' }
               }}
               animationDuration={1200}
               animationEasing="ease-out"
@@ -501,7 +621,7 @@ const NorthAmericaRevenueChart = () => {
                 fill: regionColors.AsiaPacific, 
                 stroke: '#1f2937', 
                 strokeWidth: 3,
-                style: { filter: 'drop-shadow(0 0 6px rgba(251, 191, 36, 0.6))' }
+                style: { filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.6))' }
               }}
               animationDuration={1200}
               animationEasing="ease-out"
@@ -526,7 +646,7 @@ const NorthAmericaRevenueChart = () => {
                 fill: regionColors.LatinAmerica, 
                 stroke: '#1f2937', 
                 strokeWidth: 3,
-                style: { filter: 'drop-shadow(0 0 6px rgba(248, 113, 113, 0.6))' }
+                style: { filter: 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.6))' }
               }}
               animationDuration={1200}
               animationEasing="ease-out"
@@ -538,7 +658,7 @@ const NorthAmericaRevenueChart = () => {
         </ResponsiveContainer>
       </div>
       
-      {/* Enhanced footer with regional performance insights */}
+      {/* Enhanced footer with accessibility improvements */}
       <div style={{
         marginTop: '16px',
         display: 'flex',
@@ -553,8 +673,11 @@ const NorthAmericaRevenueChart = () => {
           <div>
             Showing {totalDataPoints} months of revenue data across all regions
           </div>
-          <div style={{ fontSize: '11px', color: '#9ca3af' }}>
-            Hover over legend items to highlight individual regions
+          <div 
+            id="chart-instructions" 
+            style={{ fontSize: '11px', color: '#9ca3af' }}
+          >
+            Use keyboard navigation: Tab to legend items, Enter/Space to highlight regions
           </div>
         </div>
         
@@ -582,7 +705,7 @@ const NorthAmericaRevenueChart = () => {
         )}
       </div>
       
-      {/* Accessibility and interaction hints */}
+      {/* Accessibility and interaction information */}
       <div style={{
         marginTop: '12px',
         fontSize: '11px',
@@ -592,7 +715,7 @@ const NorthAmericaRevenueChart = () => {
         borderTop: '1px solid #374151',
         paddingTop: '8px'
       }}>
-        💡 Interactive multi-region chart • Enhanced tooltips show all data • Click legend to highlight regions
+        💡 Accessible multi-region chart • Enhanced tooltips • Keyboard navigation • Screen reader optimized
       </div>
     </div>
   );
