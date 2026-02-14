@@ -8,7 +8,7 @@ The dashboard consists of four main components that follow a consistent architec
 
 - **ActiveUsersCard** - Displays active user count with growth indicators
 - **ChurnRateCard** - Shows churn rate metrics with trend analysis  
-- **NorthAmericaRevenueChart** - Line chart for North America revenue trends
+- **RevenueByRegionTrendChart** - Multi-region line chart showing revenue trends for all regions
 - **RevenueByRegionChart** - Bar chart comparing revenue across all regions
 
 ## Common Component Pattern
@@ -177,15 +177,15 @@ function Dashboard() {
 
 ---
 
-## NorthAmericaRevenueChart
+## RevenueByRegionTrendChart
 
 ### Overview
-Line chart displaying 12 months of revenue trends for North America region. Built with Recharts library and optimized for dark theme.
+Multi-region line chart displaying 12 months of revenue trends for all four regions. Features color-coded lines for each region with interactive tooltips and legend. Built with Recharts library and optimized for dark theme.
 
 ### Props
 javascript
 // No props - component is self-contained
-const NorthAmericaRevenueChart = () => { ... }
+const RevenueByRegionTrendChart = () => { ... }
 
 
 ### State
@@ -196,7 +196,7 @@ const [error, setError] = useState(null);    // Error state
 
 
 ### API Integration
-- **Endpoint**: `GET /api/north-america-revenue`
+- **Endpoint**: `GET /api/north-america-revenue` (returns all regions data)
 - **Response Format**:
   
   {
@@ -205,35 +205,71 @@ const [error, setError] = useState(null);    // Error state
       {
         "month": "Jan 2025",
         "date": "2025-01-01",
+        "region": "North America",
         "revenue": 22500.00
       },
-      // ... 11 more months
+      {
+        "month": "Jan 2025",
+        "date": "2025-01-01",
+        "region": "Europe",
+        "revenue": 15300.00
+      }
+      // ... more regions and months
     ],
-    "count": 12
+    "count": 48
   }
   
 
+### Data Transformation
+The component transforms the API response to group revenue by month:
+
+javascript
+const transformMultiRegionData = (apiData) => {
+  const monthlyData = {};
+  
+  apiData.forEach(item => {
+    const month = item.month;
+    if (!monthlyData[month]) {
+      monthlyData[month] = { month: month, date: item.date };
+    }
+    monthlyData[month][item.region] = item.revenue;
+  });
+  
+  return Object.values(monthlyData).sort((a, b) => new Date(a.date) - new Date(b.date));
+};
+
+
 ### Chart Configuration
-- **Type**: Line chart with monotone curve
-- **Colors**: Blue theme (`#60a5fa`)
+- **Type**: Multi-line chart with monotone curves
+- **Colors**: Region-specific color scheme
+  - North America: `#60a5fa` (blue)
+  - Europe: `#34d399` (green)
+  - Asia Pacific: `#fbbf24` (yellow)
+  - Latin America: `#f87171` (red)
 - **Grid**: Dashed lines with opacity
 - **Animation**: 1000ms duration
 - **Responsive**: Uses `ResponsiveContainer`
+- **Legend**: Shows all regions with color indicators
 
 ### Recharts Components Used
 jsx
 <LineChart data={data}>
   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-  <XAxis dataKey="month" tick={{ fill: '#9ca3af' }} />
+  <XAxis dataKey="month" tick={{ fill: '#9ca3af' }} angle={-45} />
   <YAxis tickFormatter={formatCurrency} />
   <Tooltip content={<CustomTooltip />} />
-  <Line 
-    dataKey="revenue" 
-    stroke="#60a5fa" 
-    strokeWidth={3}
-    dot={{ fill: '#60a5fa', r: 4 }}
-    activeDot={{ r: 6 }}
-  />
+  <Legend />
+  {availableRegions.map((region) => (
+    <Line 
+      key={region}
+      type="monotone" 
+      dataKey={region}
+      stroke={regionColors[region]} 
+      strokeWidth={3}
+      dot={{ fill: regionColors[region], r: 4 }}
+      activeDot={{ r: 6 }}
+    />
+  ))}
 </LineChart>
 
 
@@ -244,7 +280,11 @@ const CustomTooltip = ({ active, payload, label }) => {
     return (
       <div style={{ /* Dark theme tooltip styles */ }}>
         <p>{label}</p>
-        <p>{formatCurrency(payload[0].value)}</p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ color: entry.color }}>
+            {entry.dataKey}: {formatCurrency(entry.value)}
+          </p>
+        ))}
       </div>
     );
   }
@@ -254,12 +294,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 ### Usage Example
 jsx
-import NorthAmericaRevenueChart from './components/NorthAmericaRevenueChart';
+import RevenueByRegionTrendChart from './components/NorthAmericaRevenueChart';
 
 function Dashboard() {
   return (
     <div className="chart-container">
-      <NorthAmericaRevenueChart />
+      <RevenueByRegionTrendChart />
     </div>
   );
 }
@@ -267,6 +307,7 @@ function Dashboard() {
 
 ### Helper Functions
 - `formatCurrency(value)`: Formats numbers as USD currency without decimals
+- `transformMultiRegionData(data)`: Groups API response by month for chart display
 
 ---
 
@@ -302,7 +343,7 @@ const [error, setError] = useState(null);    // Error state
       {
         "region": "Europe", 
         "revenue": 36000.00
-      },
+      }
       // ... other regions (pre-sorted by revenue DESC)
     ],
     "count": 4
@@ -375,6 +416,7 @@ All components use CSS Grid and Flexbox for responsive layouts:
 - Adjusted font sizes for readability  
 - Touch-friendly hover states
 - Simplified chart interactions
+- Angled X-axis labels for better mobile display
 
 ### Chart Responsiveness
 jsx
@@ -433,6 +475,7 @@ try {
 - Charts only render when data is available
 - Responsive containers handle resize events efficiently
 - Minimal re-renders through proper state management
+- Data transformation memoized to prevent recalculation
 
 ### Memory Management
 - No cleanup needed (components fetch data once)
@@ -449,6 +492,7 @@ bash
 npm run test-api          # ActiveUsersCard
 npm run test-churn        # ChurnRateCard
 node test-revenue-by-region.js  # RevenueByRegionChart
+node test-north-america-revenue.js # RevenueByRegionTrendChart
 
 
 ### Integration Testing
@@ -457,6 +501,8 @@ node test-revenue-by-region.js  # RevenueByRegionChart
 3. Confirm error handling with invalid API responses
 4. Test responsive behavior across screen sizes
 5. Validate accessibility with screen readers
+6. Test multi-region chart shows all regions correctly
+7. Verify legend and tooltips work properly
 
 ### Visual Testing Checklist
 - [ ] Dark theme colors consistent
@@ -466,6 +512,9 @@ node test-revenue-by-region.js  # RevenueByRegionChart
 - [ ] Error states are user-friendly
 - [ ] Mobile layout works properly
 - [ ] Hover interactions function smoothly
+- [ ] Multi-region chart shows distinct colored lines
+- [ ] Legend displays all regions with correct colors
+- [ ] Tooltips show multiple regions on hover
 
 ## Future Enhancement Ideas
 
@@ -478,6 +527,8 @@ node test-revenue-by-region.js  # RevenueByRegionChart
 6. **Performance Monitoring**: Track component load times
 7. **Accessibility Enhancements**: Better screen reader support
 8. **Animation Controls**: User preference for reduced motion
+9. **Region Filtering**: Toggle regions on/off in multi-region chart
+10. **Data Annotations**: Highlight significant events or changes
 
 ---
 

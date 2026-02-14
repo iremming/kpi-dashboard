@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 /**
  * Format currency values for display
@@ -16,7 +16,7 @@ const formatCurrency = (value) => {
 };
 
 /**
- * Custom tooltip component for the line chart
+ * Custom tooltip component for multi-region revenue chart
  */
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -28,12 +28,34 @@ const CustomTooltip = ({ active, payload, label }) => {
         padding: '12px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
       }}>
-        <p style={{ color: '#f9fafb', margin: 0, fontSize: '14px', fontWeight: '500' }}>
+        <p style={{ 
+          color: '#f9fafb', 
+          margin: '0 0 8px 0', 
+          fontSize: '14px', 
+          fontWeight: '500' 
+        }}>
           {label}
         </p>
-        <p style={{ color: '#60a5fa', margin: '4px 0 0 0', fontSize: '16px', fontWeight: '600' }}>
-          {formatCurrency(payload[0].value)}
-        </p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ 
+            color: entry.color, 
+            margin: '4px 0', 
+            fontSize: '14px', 
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <span style={{
+              width: '12px',
+              height: '3px',
+              backgroundColor: entry.color,
+              borderRadius: '2px',
+              display: 'inline-block'
+            }}></span>
+            {entry.dataKey}: {formatCurrency(entry.value)}
+          </p>
+        ))}
       </div>
     );
   }
@@ -41,8 +63,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 /**
- * North America Revenue Chart Component
- * Displays revenue trends for North America over the past 12 months
+ * Multi-Region Revenue Chart Component
+ * Displays revenue trends for all regions over the past 12 months
  */
 const NorthAmericaRevenueChart = () => {
   const [data, setData] = useState([]);
@@ -67,9 +89,11 @@ const NorthAmericaRevenueChart = () => {
           throw new Error(result.error || 'Failed to fetch revenue data');
         }
         
-        setData(result.data || []);
+        // Transform data to group by month with all regions
+        const transformedData = transformMultiRegionData(result.data || []);
+        setData(transformedData);
       } catch (err) {
-        console.error('Error fetching North America revenue data:', err);
+        console.error('Error fetching revenue data:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -78,6 +102,35 @@ const NorthAmericaRevenueChart = () => {
 
     fetchRevenueData();
   }, []);
+
+  /**
+   * Transform multi-region API data into chart format
+   * Groups revenue data by month with separate line for each region
+   */
+  const transformMultiRegionData = (apiData) => {
+    if (!apiData || apiData.length === 0) return [];
+
+    // Group data by month
+    const monthlyData = {};
+    
+    apiData.forEach(item => {
+      const month = item.month;
+      if (!monthlyData[month]) {
+        monthlyData[month] = {
+          month: month,
+          date: item.date
+        };
+      }
+      
+      // Add revenue for this region to the month
+      monthlyData[month][item.region] = item.revenue;
+    });
+
+    // Convert to array and sort by date
+    const chartData = Object.values(monthlyData).sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    return chartData;
+  };
 
   if (loading) {
     return (
@@ -94,7 +147,7 @@ const NorthAmericaRevenueChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          North America Revenue Trend
+          Revenue Trends by Region
         </h3>
         <div style={{
           height: '300px',
@@ -124,7 +177,7 @@ const NorthAmericaRevenueChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          North America Revenue Trend
+          Revenue Trends by Region
         </h3>
         <div style={{
           height: '300px',
@@ -157,7 +210,7 @@ const NorthAmericaRevenueChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          North America Revenue Trend
+          Revenue Trends by Region
         </h3>
         <div style={{
           height: '300px',
@@ -171,6 +224,20 @@ const NorthAmericaRevenueChart = () => {
       </div>
     );
   }
+
+  // Define colors for each region
+  const regionColors = {
+    'North America': '#60a5fa',
+    'Europe': '#34d399',
+    'Asia Pacific': '#fbbf24',
+    'Latin America': '#f87171'
+  };
+
+  // Get all regions that have data
+  const regions = ['North America', 'Europe', 'Asia Pacific', 'Latin America'];
+  const availableRegions = regions.filter(region => 
+    data.some(item => item[region] !== undefined)
+  );
 
   return (
     <div style={{
@@ -186,18 +253,18 @@ const NorthAmericaRevenueChart = () => {
         fontSize: '18px',
         fontWeight: '600'
       }}>
-        North America Revenue Trend
+        Revenue Trends by Region
       </h3>
       
-      <div style={{ height: '350px' }}>
+      <div style={{ height: '400px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
             margin={{
               top: 20,
               right: 30,
-              left: 20,
-              bottom: 5,
+              left: 40,
+              bottom: 60,
             }}
           >
             <CartesianGrid 
@@ -211,36 +278,59 @@ const NorthAmericaRevenueChart = () => {
               tickLine={false}
               tick={{ fill: '#9ca3af', fontSize: 12 }}
               interval="preserveStartEnd"
+              angle={-45}
+              textAnchor="end"
+              height={60}
             />
             <YAxis 
               axisLine={false}
               tickLine={false}
               tick={{ fill: '#9ca3af', fontSize: 12 }}
               tickFormatter={formatCurrency}
+              width={80}
             />
             <Tooltip 
               content={<CustomTooltip />}
             />
-            <Line 
-              type="monotone" 
-              dataKey="revenue" 
-              stroke="#60a5fa" 
-              strokeWidth={3}
-              dot={{ fill: '#60a5fa', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, fill: '#60a5fa', stroke: '#1f2937', strokeWidth: 2 }}
-              animationDuration={1000}
+            <Legend 
+              verticalAlign="top"
+              height={36}
+              iconType="line"
+              wrapperStyle={{
+                paddingBottom: '20px',
+                fontSize: '12px',
+                color: '#9ca3af'
+              }}
+              formatter={(value) => (
+                <span style={{ color: '#9ca3af', fontSize: '12px' }}>{value}</span>
+              )}
             />
+            
+            {/* Render a line for each region */}
+            {availableRegions.map((region) => (
+              <Line 
+                key={region}
+                type="monotone" 
+                dataKey={region}
+                stroke={regionColors[region]} 
+                strokeWidth={3}
+                dot={{ fill: regionColors[region], strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, fill: regionColors[region], stroke: '#1f2937', strokeWidth: 2 }}
+                animationDuration={1000}
+                connectNulls={false}
+              />
+            ))}
           </LineChart>
         </ResponsiveContainer>
       </div>
       
       <div style={{
-        marginTop: '16px',
+        marginTop: '12px',
         fontSize: '13px',
         color: '#6b7280',
         textAlign: 'center'
       }}>
-        Showing {data.length} months of revenue data
+        Showing {data.length} months of revenue data for {availableRegions.length} regions
       </div>
     </div>
   );

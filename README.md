@@ -78,8 +78,8 @@ Displays monthly active user count with growth percentage and trend indicators.
 ### Churn Rate Card  
 Shows customer churn rate with month-over-month change analysis using inverse color logic (green = decreasing churn).
 
-### North America Revenue Chart
-Line chart showing 12 months of revenue trends for the North America region with interactive tooltips.
+### Revenue Trends by Region Chart
+Line chart showing 12 months of revenue trends for all four regions with interactive tooltips and color-coded lines.
 
 ### Revenue by Region Chart
 Bar chart comparing revenue across all four regions (North America, Europe, Asia Pacific, Latin America) with performance-based color coding.
@@ -140,7 +140,6 @@ kpi-dashboard/
 │   └── index.css          # Global styles
 ├── scripts/               # Utility scripts
 ├── wiki/                  # Documentation
-├── blog/                  # Technical blog posts
 └── test-*.js             # API testing scripts
 
 
@@ -178,7 +177,7 @@ For local development, install PostgreSQL:
 bash
 brew install postgresql
 brew services start postgresql
-createb kpi_dashboard
+createdb kpi_dashboard
 
 
 **Ubuntu/Debian:**
@@ -227,7 +226,7 @@ npm run test-churn # Test churn rate endpoint
 
 - `GET /api/active-users` - Active user metrics with growth indicators
 - `GET /api/churn-rate` - Churn rate with month-over-month change
-- `GET /api/north-america-revenue` - 12-month North America revenue trend
+- `GET /api/north-america-revenue` - All regions revenue trend data for multi-region chart
 - `GET /api/revenue-by-region` - Latest revenue comparison by region
 
 ### Database Schema
