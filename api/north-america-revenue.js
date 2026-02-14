@@ -1,7 +1,8 @@
 import { Client } from 'pg';
 
 /**
- * Serverless function to fetch North America revenue data for the past 12 months
+ * Serverless function to fetch revenue data for all regions over the past 12 months
+ * Updated to support all regions instead of just North America
  */
 export default async function handler(req, res) {
   // Only allow GET requests
@@ -19,26 +20,39 @@ export default async function handler(req, res) {
     
     await client.connect();
 
-    // Query last 12 months of North America revenue data
+    // Query last 12 months of revenue data for all regions
     const query = `
       SELECT 
         TO_CHAR(date, 'Mon YYYY') as month,
         date,
+        region,
         revenue
       FROM revenue_by_region 
-      WHERE region = 'North America'
-      AND date >= CURRENT_DATE - INTERVAL '12 months'
-      ORDER BY date ASC
+      WHERE date >= CURRENT_DATE - INTERVAL '12 months'
+      ORDER BY date ASC, region
     `;
 
     const result = await client.query(query);
 
-    // Transform data for frontend consumption
-    const revenueData = result.rows.map(row => ({
-      month: row.month,
-      date: row.date,
-      revenue: parseFloat(row.revenue)
-    }));
+    // Transform data to group by month with all regions' revenue
+    const dataByMonth = {};
+    
+    result.rows.forEach(row => {
+      const monthKey = row.month;
+      if (!dataByMonth[monthKey]) {
+        dataByMonth[monthKey] = {
+          month: monthKey,
+          date: row.date
+        };
+      }
+      
+      // Create region-specific property (replace spaces and special chars)
+      const regionKey = row.region.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+      dataByMonth[monthKey][regionKey] = parseFloat(row.revenue);
+    });
+    
+    // Convert to array format for chart consumption
+    const chartData = Object.values(dataByMonth);
 
     // Set CORS headers for frontend access
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -48,8 +62,8 @@ export default async function handler(req, res) {
     // Return successful response with data
     res.status(200).json({
       success: true,
-      data: revenueData,
-      count: revenueData.length
+      data: chartData,
+      count: chartData.length
     });
 
   } catch (error) {
@@ -58,7 +72,7 @@ export default async function handler(req, res) {
     // Return error response
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch North America revenue data',
+      error: 'Failed to fetch revenue data for all regions',
       message: error.message
     });
   } finally {
