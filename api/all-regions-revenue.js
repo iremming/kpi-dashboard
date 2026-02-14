@@ -2,6 +2,7 @@ import { Client } from 'pg';
 
 /**
  * Serverless function to fetch revenue data for all regions over the past 12 months
+ * Returns monthly data points with revenue for all four regions organized by month
  */
 export default async function handler(req, res) {
   // Only allow GET requests
@@ -45,13 +46,13 @@ export default async function handler(req, res) {
         };
       }
       
-      // Create region-specific property (replace spaces and special chars)
+      // Create region-specific property (replace spaces and special chars for valid JS property names)
       const regionKey = row.region.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
       dataByMonth[monthKey][regionKey] = parseFloat(row.revenue);
     });
     
-    // Convert to array format for chart consumption
-    const chartData = Object.values(dataByMonth);
+    // Convert to array format sorted by date for chart consumption
+    const chartData = Object.values(dataByMonth).sort((a, b) => new Date(a.date) - new Date(b.date));
 
     // Set CORS headers for frontend access
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -62,11 +63,18 @@ export default async function handler(req, res) {
     res.status(200).json({
       success: true,
       data: chartData,
-      count: chartData.length
+      count: chartData.length,
+      regions: ['North America', 'Europe', 'Asia Pacific', 'Latin America'],
+      description: 'Monthly revenue data for all regions over the past 12 months'
     });
 
   } catch (error) {
     console.error('Database error:', error);
+    
+    // Set CORS headers even for error responses
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
     // Return error response
     res.status(500).json({
