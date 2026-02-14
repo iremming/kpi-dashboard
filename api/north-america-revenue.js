@@ -1,7 +1,7 @@
 import { Client } from 'pg';
 
 /**
- * Serverless function to fetch North America revenue data for the past 12 months
+ * Serverless function to fetch all regions revenue data for the past 12 months
  */
 export default async function handler(req, res) {
   // Only allow GET requests
@@ -19,16 +19,16 @@ export default async function handler(req, res) {
     
     await client.connect();
 
-    // Query last 12 months of North America revenue data
+    // Query last 12 months of revenue data for all regions
     const query = `
       SELECT 
         TO_CHAR(date, 'Mon YYYY') as month,
         date,
+        region,
         revenue
       FROM revenue_by_region 
-      WHERE region = 'North America'
-      AND date >= CURRENT_DATE - INTERVAL '12 months'
-      ORDER BY date ASC
+      WHERE date >= CURRENT_DATE - INTERVAL '12 months'
+      ORDER BY date ASC, region ASC
     `;
 
     const result = await client.query(query);
@@ -37,6 +37,7 @@ export default async function handler(req, res) {
     const revenueData = result.rows.map(row => ({
       month: row.month,
       date: row.date,
+      region: row.region,
       revenue: parseFloat(row.revenue)
     }));
 
@@ -58,7 +59,7 @@ export default async function handler(req, res) {
     // Return error response
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch North America revenue data',
+      error: 'Failed to fetch revenue data',
       message: error.message
     });
   } finally {
