@@ -49,7 +49,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 /**
  * Multi-Region Revenue Chart Component
- * Displays revenue trends for all regions over the past 12 months
+ * Displays revenue trends for all regions over the past 12 months using Recharts LineChart
+ * Demonstrates that LineChart component can support multiple lines with different colors and styling
  */
 const NorthAmericaRevenueChart = () => {
   const [data, setData] = useState([]);
@@ -179,7 +180,7 @@ const NorthAmericaRevenueChart = () => {
     );
   }
 
-  // Define colors for each region
+  // Define colors for each region - demonstrating LineChart's multi-line capability
   const regionColors = {
     NorthAmerica: '#60a5fa',     // Blue
     Europe: '#34d399',          // Green  
@@ -252,7 +253,7 @@ const NorthAmericaRevenueChart = () => {
               iconType="line"
             />
             
-            {/* Line for each region */}
+            {/* Multiple Line components - demonstrating LineChart's multi-line support */}
             <Line 
               type="monotone" 
               dataKey="NorthAmerica" 
@@ -303,7 +304,7 @@ const NorthAmericaRevenueChart = () => {
         color: '#6b7280',
         textAlign: 'center'
       }}>
-        Showing {data.length} months of revenue data across all regions
+        Showing {data.length} months of revenue data across all regions • Multiple lines demonstrate Recharts LineChart capabilities
       </div>
     </div>
   );
