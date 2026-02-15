@@ -10,7 +10,8 @@
     "test": "npm run dev",
     "seed": "node scripts/seed.js",
     "test-api": "node test-api.js",
-    "test-churn": "node test-churn-api.js"
+    "test-churn": "node test-churn-api.js",
+    "test-all-regions": "node test-all-regions-api.js"
   },
   "dependencies": {
     "react": "^18.3.1",
