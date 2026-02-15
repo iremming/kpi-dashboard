@@ -9,7 +9,7 @@ The dashboard consists of four main components that follow a consistent architec
 - **ActiveUsersCard** - Displays active user count with growth indicators
 - **ChurnRateCard** - Shows churn rate metrics with trend analysis  
 - **NorthAmericaRevenueChart** - Line chart for North America revenue trends
-- **RevenueByRegionChart** - Bar chart comparing revenue across all regions
+- **RevenueByRegionChart** - Bar chart comparing revenue across all four regions (North America, Europe, Asia Pacific, Latin America) with performance-based color coding.
 
 ## Common Component Pattern
 
@@ -58,6 +58,7 @@ javascript
 const ActiveUsersCard = () => { ... }
 
 
+
 ### State
 javascript
 const [data, setData] = useState(null);     // API response data
@@ -65,9 +66,11 @@ const [loading, setLoading] = useState(true); // Loading indicator
 const [error, setError] = useState(null);    // Error state
 
 
+
 ### API Integration
 - **Endpoint**: `GET /api/active-users`
 - **Response Format**:
+  
   
   {
     "success": true,
@@ -78,6 +81,7 @@ const [error, setError] = useState(null);    // Error state
       "previous_date": "2024-12-01"
     }
   }
+  
   
 
 ### Styling & Layout
@@ -99,6 +103,7 @@ function Dashboard() {
     </div>
   );
 }
+
 
 
 ### Helper Functions
@@ -124,6 +129,7 @@ javascript
 const ChurnRateCard = () => { ... }
 
 
+
 ### State
 javascript
 const [data, setData] = useState(null);     // API response data
@@ -131,9 +137,11 @@ const [loading, setLoading] = useState(true); // Loading indicator
 const [error, setError] = useState(null);    // Error state
 
 
+
 ### API Integration
 - **Endpoint**: `GET /api/churn-rate`
 - **Response Format**:
+  
   
   {
     "success": true,
@@ -145,6 +153,7 @@ const [error, setError] = useState(null);    // Error state
     }
   }
   
+  
 
 ### Color Logic (Inverse)
 Churn rate uses inverse color logic since lower churn is better:
@@ -155,6 +164,7 @@ javascript
 const isChurnDecreasing = data.growth_percentage <= 0;
 const growthColor = isChurnDecreasing ? '#10b981' : '#ef4444';
 const growthIcon = isChurnDecreasing ? '↘' : '↗';
+
 
 
 ### Usage Example
@@ -169,6 +179,7 @@ function Dashboard() {
     </div>
   );
 }
+
 
 
 ### Helper Functions
@@ -188,6 +199,7 @@ javascript
 const NorthAmericaRevenueChart = () => { ... }
 
 
+
 ### State
 javascript
 const [data, setData] = useState([]);       // Chart data array
@@ -195,9 +207,11 @@ const [loading, setLoading] = useState(true); // Loading indicator
 const [error, setError] = useState(null);    // Error state
 
 
+
 ### API Integration
 - **Endpoint**: `GET /api/north-america-revenue`
 - **Response Format**:
+  
   
   {
     "success": true,
@@ -211,6 +225,7 @@ const [error, setError] = useState(null);    // Error state
     ],
     "count": 12
   }
+  
   
 
 ### Chart Configuration
@@ -237,6 +252,7 @@ jsx
 </LineChart>
 
 
+
 ### Custom Tooltip Component
 jsx
 const CustomTooltip = ({ active, payload, label }) => {
@@ -252,6 +268,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 
+
 ### Usage Example
 jsx
 import NorthAmericaRevenueChart from './components/NorthAmericaRevenueChart';
@@ -263,6 +280,7 @@ function Dashboard() {
     </div>
   );
 }
+
 
 
 ### Helper Functions
@@ -281,6 +299,7 @@ javascript
 const RevenueByRegionChart = () => { ... }
 
 
+
 ### State
 javascript
 const [data, setData] = useState([]);       // Chart data array
@@ -288,9 +307,11 @@ const [loading, setLoading] = useState(true); // Loading indicator
 const [error, setError] = useState(null);    // Error state
 
 
+
 ### API Integration
 - **Endpoint**: `GET /api/revenue-by-region`
 - **Response Format**:
+  
   
   {
     "success": true,
@@ -308,6 +329,7 @@ const [error, setError] = useState(null);    // Error state
     "count": 4
   }
   
+  
 
 ### Color Coding Strategy
 Bars are colored by performance rank (data comes pre-sorted from API):
@@ -322,6 +344,7 @@ const getBarColor = (index, total) => {
   ];
   return colors[index] || '#1d4ed8';
 };
+
 
 
 ### Chart Configuration
@@ -344,6 +367,7 @@ function Dashboard() {
 }
 
 
+
 ### Footer Information
 Displays summary information below the chart:
 - Total number of regions
@@ -356,6 +380,7 @@ jsx
     Top performer: {topPerformer.region} ({formatCurrency(topPerformer.revenue)})
   </div>
 </div>
+
 
 
 ---
@@ -388,6 +413,7 @@ jsx
 </div>
 
 
+
 ## Error Handling Patterns
 
 ### Network Error Handling
@@ -414,6 +440,7 @@ try {
 } finally {
   setLoading(false);
 }
+
 
 
 ### Error UI States
@@ -449,6 +476,7 @@ bash
 npm run test-api          # ActiveUsersCard
 npm run test-churn        # ChurnRateCard
 node test-revenue-by-region.js  # RevenueByRegionChart
+
 
 
 ### Integration Testing
