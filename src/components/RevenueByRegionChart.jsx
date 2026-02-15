@@ -28,7 +28,8 @@ const getBarColor = (index, total) => {
     '#2563eb', // Darker blue for third highest
     '#1d4ed8'  // Darkest blue for lowest revenue
   ];
-  return colors[index] || '#1d4ed8';
+  // Ensure that we don't exceed the available colors, default to the darkest blue
+  return colors[index] || colors[colors.length - 1];
 };
 
 /**
