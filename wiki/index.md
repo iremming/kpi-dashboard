@@ -7,5 +7,6 @@ It serves as the project's shared knowledge base.
 - [Architecture](architecture.md)
 - [Conventions](conventions/README.md)
 - [Components](components/README.md)
+- [API Endpoints](api/README.md)
 - [Business Rules](business-rules/README.md)
 - [Decisions](decisions/README.md)
