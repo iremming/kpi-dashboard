@@ -151,7 +151,7 @@ const RevenueByRegionChart = () => {
         borderRadius: '8px',
         padding: '24px',
         marginBottom: '24px',
-        border: '1px solid #374151'
+        border: '1px solid '#374151'
       }}>
         <h3 style={{
           color: '#f9fafb',
@@ -180,7 +180,7 @@ const RevenueByRegionChart = () => {
       borderRadius: '8px',
       padding: '24px',
       marginBottom: '24px',
-      border: '1px solid #374151'
+      border: '1px solid '#374151'
     }}>
       <h3 style={{
         color: '#f9fafb',
