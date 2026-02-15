@@ -345,6 +345,8 @@ Need help? Check these resources:
 - Powered by modern web technologies and best practices
 - Inspired by the need for accessible business intelligence tools
 
----
+--- 
 
 **Built by the team with Epicraft AI Agent** | [Documentation](wiki/README.md) | [Blog](blog/building-a-modern-kpi-dashboard.md) | [Changelog](CHANGELOG.md)
+
+---
