@@ -5,7 +5,6 @@ A modern business intelligence dashboard providing real-time insights into key p
 ![Dashboard Preview](docs/images/dashboard-preview.png) <!-- Screenshot placeholder -->
 
 ## ✨ Features
-
 - 📊 **Real-time KPI Metrics** - Active users, churn rate, and revenue analytics
 - 📈 **Interactive Charts** - Line charts and bar charts with hover interactions
 - 📱 **Responsive Design** - Mobile-first approach with dark theme
@@ -29,12 +28,10 @@ A modern business intelligence dashboard providing real-time insights into key p
    git clone <repository-url>
    cd kpi-dashboard
    
-
 2. **Install dependencies**
    bash
    npm install
    
-
 3. **Set up environment variables**
    
    Create a `.env.local` file in the project root:
@@ -345,7 +342,7 @@ Need help? Check these resources:
 - Powered by modern web technologies and best practices
 - Inspired by the need for accessible business intelligence tools
 
---- 
+---*
 
 **Built by the team with Epicraft AI Agent** | [Documentation](wiki/README.md) | [Blog](blog/building-a-modern-kpi-dashboard.md) | [Changelog](CHANGELOG.md)
 
