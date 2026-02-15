@@ -1,4 +1,8 @@
 # Business Rules
 
-<!-- PMs: Document domain logic, feature requirements, and edge cases here -->
-<!-- Epicraft reads these pages to understand the business context behind tickets -->
+**Overview:**
+This section details the core business logic and rules implemented in the application.
+
+**Key Business Rules:**
+- **Active Users Growth Calculation:**
+    - The `ActiveUsersCard` component calculates and displays the month-over-month percentage growth for active users. This calculation is based on data fetched from the `/api/active-users` endpoint. 
