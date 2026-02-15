@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/build-wiki.mjs",
+    "build": "vite build",
     "preview": "vite preview",
     "test": "npm run dev",
     "seed": "node scripts/seed.js",
