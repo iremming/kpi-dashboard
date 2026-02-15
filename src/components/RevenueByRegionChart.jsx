@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 /**
  * Format currency values for display
@@ -16,23 +16,7 @@ const formatCurrency = (value) => {
 };
 
 /**
- * Get color for bar based on ranking (brightest for highest revenue)
- * @param {number} index - Index of region (0 = highest revenue)
- * @param {number} total - Total number of regions
- * @returns {string} Hex color code
- */
-const getBarColor = (index, total) => {
-  const colors = [
-    '#60a5fa', // Brightest blue for highest revenue
-    '#3b82f6', // Medium blue for second highest
-    '#2563eb', // Darker blue for third highest
-    '#1d4ed8'  // Darkest blue for lowest revenue
-  ];
-  return colors[index] || '#1d4ed8';
-};
-
-/**
- * Custom tooltip component for the bar chart
+ * Custom tooltip component for the line chart
  */
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -47,9 +31,11 @@ const CustomTooltip = ({ active, payload, label }) => {
         <p style={{ color: '#f9fafb', margin: 0, fontSize: '14px', fontWeight: '500' }}>
           {label}
         </p>
-        <p style={{ color: payload[0].fill, margin: '4px 0 0 0', fontSize: '16px', fontWeight: '600' }}>
-          {formatCurrency(payload[0].value)}
-        </p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ color: entry.color, margin: '4px 0 0 0', fontSize: '16px', fontWeight: '600' }}>
+            {entry.name}: {formatCurrency(entry.value)}
+          </p>
+        ))}
       </div>
     );
   }
@@ -58,7 +44,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 /**
  * Revenue By Region Chart Component
- * Displays revenue comparison across all 4 regions with visual clarity for best performer
+ * Displays revenue trends for all four regions over time
  */
 const RevenueByRegionChart = () => {
   const [data, setData] = useState([]);
@@ -71,7 +57,7 @@ const RevenueByRegionChart = () => {
         setLoading(true);
         setError(null);
         
-        const response = await fetch('/api/revenue-by-region');
+        const response = await fetch('/api/all-regions-revenue-trend');
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -80,18 +66,12 @@ const RevenueByRegionChart = () => {
         const result = await response.json();
         
         if (!result.success) {
-          throw new Error(result.error || 'Failed to fetch revenue by region data');
+          throw new Error(result.error || 'Failed to fetch revenue trend data');
         }
         
-        // Add colors to data based on revenue ranking (already sorted by revenue DESC in API)
-        const dataWithColors = (result.data || []).map((item, index) => ({
-          ...item,
-          fill: getBarColor(index, result.data.length)
-        }));
-        
-        setData(dataWithColors);
+        setData(result.data || []);
       } catch (err) {
-        console.error('Error fetching revenue by region data:', err);
+        console.error('Error fetching revenue trend data:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -116,7 +96,7 @@ const RevenueByRegionChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          Revenue by Region
+          Revenue Trends by Region
         </h3>
         <div style={{
           height: '300px',
@@ -125,7 +105,7 @@ const RevenueByRegionChart = () => {
           justifyContent: 'center',
           color: '#9ca3af'
         }}>
-          Loading revenue data...
+          Loading revenue trend data...
         </div>
       </div>
     );
@@ -146,7 +126,7 @@ const RevenueByRegionChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          Revenue by Region
+          Revenue Trends by Region
         </h3>
         <div style={{
           height: '300px',
@@ -157,7 +137,7 @@ const RevenueByRegionChart = () => {
           flexDirection: 'column',
           gap: '8px'
         }}>
-          <div>Error loading revenue data</div>
+          <div>Error loading revenue trend data</div>
           <div style={{ fontSize: '14px', color: '#9ca3af' }}>{error}</div>
         </div>
       </div>
@@ -179,7 +159,7 @@ const RevenueByRegionChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          Revenue by Region
+          Revenue Trends by Region
         </h3>
         <div style={{
           height: '300px',
@@ -188,14 +168,11 @@ const RevenueByRegionChart = () => {
           justifyContent: 'center',
           color: '#9ca3af'
         }}>
-          No revenue data available
+          No revenue trend data available
         </div>
       </div>
     );
   }
-
-  const maxRevenue = Math.max(...data.map(item => item.revenue));
-  const topPerformer = data[0]; // First item is highest due to API sorting
 
   return (
     <div style={{
@@ -211,12 +188,12 @@ const RevenueByRegionChart = () => {
         fontSize: '18px',
         fontWeight: '600'
       }}>
-        Revenue by Region
+        Revenue Trends by Region
       </h3>
       
       <div style={{ height: '350px' }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart
+          <LineChart
             data={data}
             margin={{
               top: 20,
@@ -231,14 +208,11 @@ const RevenueByRegionChart = () => {
               strokeOpacity={0.5}
             />
             <XAxis 
-              dataKey="region" 
+              dataKey="month" 
               axisLine={false}
               tickLine={false}
               tick={{ fill: '#9ca3af', fontSize: 12 }}
-              interval={0}
-              angle={-45}
-              textAnchor="end"
-              height={80}
+              interval="preserveStartEnd"
             />
             <YAxis 
               axisLine={false}
@@ -249,33 +223,58 @@ const RevenueByRegionChart = () => {
             <Tooltip 
               content={<CustomTooltip />}
             />
-            <Bar 
-              dataKey="revenue" 
-              fill={(entry) => entry.fill}
-              radius={[4, 4, 0, 0]}
+            <Legend />
+            <Line 
+              type="monotone" 
+              dataKey="north_america" 
+              name="North America"
+              stroke="#60a5fa" 
+              strokeWidth={3}
+              dot={{ fill: '#60a5fa', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, fill: '#60a5fa', stroke: '#1f2937', strokeWidth: 2 }}
               animationDuration={1000}
             />
-          </BarChart>
+            <Line 
+              type="monotone" 
+              dataKey="europe" 
+              name="Europe"
+              stroke="#10b981" 
+              strokeWidth={3}
+              dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, fill: '#10b981', stroke: '#1f2937', strokeWidth: 2 }}
+              animationDuration={1000}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="asia_pacific" 
+              name="Asia Pacific"
+              stroke="#f59e0b" 
+              strokeWidth={3}
+              dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, fill: '#f59e0b', stroke: '#1f2937', strokeWidth: 2 }}
+              animationDuration={1000}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="latin_america" 
+              name="Latin America"
+              stroke="#8b5cf6" 
+              strokeWidth={3}
+              dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, fill: '#8b5cf6', stroke: '#1f2937', strokeWidth: 2 }}
+              animationDuration={1000}
+            />
+          </LineChart>
         </ResponsiveContainer>
       </div>
       
       <div style={{
         marginTop: '16px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         fontSize: '13px',
-        color: '#6b7280'
+        color: '#6b7280',
+        textAlign: 'center'
       }}>
-        <div>
-          Showing {data.length} regions
-        </div>
-        <div style={{
-          color: '#10b981',
-          fontWeight: '500'
-        }}>
-          Top performer: {topPerformer.region} ({formatCurrency(topPerformer.revenue)})
-        </div>
+        Showing {data.length} months of revenue trend data across all regions
       </div>
     </div>
   );
