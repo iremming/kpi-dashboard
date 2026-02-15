@@ -20,6 +20,8 @@ export default async function handler(req, res) {
     await client.connect();
 
     // Query latest revenue data for all 4 regions
+    // The WHERE clause already fetches the latest date.
+    // ORDER BY revenue DESC is crucial for the frontend to apply colors correctly.
     const query = `
       SELECT 
         region,
