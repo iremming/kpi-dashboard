@@ -1,3 +1,4 @@
+--- CHANGELOG.md ---
 # Changelog
 
 All notable changes to the KPI Dashboard project will be documented in this file.
