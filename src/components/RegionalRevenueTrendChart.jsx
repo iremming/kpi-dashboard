@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 /**
  * Format currency values for display
@@ -31,9 +31,16 @@ const CustomTooltip = ({ active, payload, label }) => {
         <p style={{ color: '#f9fafb', margin: 0, fontSize: '14px', fontWeight: '500' }}>
           {label}
         </p>
-        <p style={{ color: '#60a5fa', margin: '4px 0 0 0', fontSize: '16px', fontWeight: '600' }}>
-          {formatCurrency(payload[0].value)}
-        </p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ 
+            color: entry.color, 
+            margin: '4px 0 0 0', 
+            fontSize: '16px', 
+            fontWeight: '600' 
+          }}>
+            {entry.name}: {formatCurrency(entry.value)}
+          </p>
+        ))}
       </div>
     );
   }
@@ -41,10 +48,25 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 /**
- * North America Revenue Chart Component
- * Displays revenue trends for North America over the past 12 months
+ * Get color for each region line
+ * @param {string} region - Region name
+ * @returns {string} Hex color code
  */
-const NorthAmericaRevenueChart = () => {
+const getRegionColor = (region) => {
+  const colors = {
+    'North America': '#60a5fa',
+    'Europe': '#3b82f6',
+    'Asia Pacific': '#2563eb',
+    'Latin America': '#1d4ed8'
+  };
+  return colors[region] || '#9ca3af';
+};
+
+/**
+ * Regional Revenue Trend Chart Component
+ * Displays revenue trends for all 4 regions over the past 12 months
+ */
+const RegionalRevenueTrendChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,7 +77,7 @@ const NorthAmericaRevenueChart = () => {
         setLoading(true);
         setError(null);
         
-        const response = await fetch('/api/north-america-revenue');
+        const response = await fetch('/api/all-regions-revenue');
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -67,9 +89,31 @@ const NorthAmericaRevenueChart = () => {
           throw new Error(result.error || 'Failed to fetch revenue data');
         }
         
-        setData(result.data || []);
+        // Transform data for Recharts - group by month with region values
+        const transformedData = [];
+        const regions = {};
+        
+        result.data.forEach(item => {
+          // Find or create month entry
+          let monthData = transformedData.find(d => d.month === item.month);
+          if (!monthData) {
+            monthData = { month: item.month, date: item.date };
+            transformedData.push(monthData);
+          }
+          
+          // Add region revenue to month data
+          monthData[item.region] = item.revenue;
+          
+          // Track all regions
+          regions[item.region] = true;
+        });
+        
+        // Sort by date
+        transformedData.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        setData(transformedData);
       } catch (err) {
-        console.error('Error fetching North America revenue data:', err);
+        console.error('Error fetching all regions revenue data:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -94,7 +138,7 @@ const NorthAmericaRevenueChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          North America Revenue Trend
+          Revenue Trend by Region
         </h3>
         <div style={{
           height: '300px',
@@ -124,7 +168,7 @@ const NorthAmericaRevenueChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          North America Revenue Trend
+          Revenue Trend by Region
         </h3>
         <div style={{
           height: '300px',
@@ -157,7 +201,7 @@ const NorthAmericaRevenueChart = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          North America Revenue Trend
+          Revenue Trend by Region
         </h3>
         <div style={{
           height: '300px',
@@ -171,6 +215,9 @@ const NorthAmericaRevenueChart = () => {
       </div>
     );
   }
+
+  // Get all unique regions from the data
+  const regions = Object.keys(data[0]).filter(key => key !== 'month' && key !== 'date');
 
   return (
     <div style={{
@@ -186,10 +233,10 @@ const NorthAmericaRevenueChart = () => {
         fontSize: '18px',
         fontWeight: '600'
       }}>
-        North America Revenue Trend
+        Revenue Trend by Region
       </h3>
       
-      <div style={{ height: '350px' }}>
+      <div style={{ height: '400px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
@@ -221,15 +268,25 @@ const NorthAmericaRevenueChart = () => {
             <Tooltip 
               content={<CustomTooltip />}
             />
-            <Line 
-              type="monotone" 
-              dataKey="revenue" 
-              stroke="#60a5fa" 
-              strokeWidth={3}
-              dot={{ fill: '#60a5fa', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, fill: '#60a5fa', stroke: '#1f2937', strokeWidth: 2 }}
-              animationDuration={1000}
+            <Legend 
+              wrapperStyle={{
+                paddingTop: '20px',
+                color: '#f9fafb'
+              }}
             />
+            {regions.map(region => (
+              <Line 
+                key={region}
+                type="monotone" 
+                dataKey={region}
+                stroke={getRegionColor(region)}
+                strokeWidth={2}
+                dot={{ fill: getRegionColor(region), strokeWidth: 2, r: 3 }}
+                activeDot={{ r: 5, fill: getRegionColor(region), stroke: '#1f2937', strokeWidth: 2 }}
+                animationDuration={1000}
+                name={region}
+              />
+            ))}
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -240,10 +297,10 @@ const NorthAmericaRevenueChart = () => {
         color: '#6b7280',
         textAlign: 'center'
       }}>
-        Showing {data.length} months of revenue data
+        Showing {data.length} months of revenue data across {regions.length} regions
       </div>
     </div>
   );
 };
 
-export default NorthAmericaRevenueChart;
+export default RegionalRevenueTrendChart;
