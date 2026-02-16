@@ -7,7 +7,7 @@ A modern business intelligence dashboard providing real-time insights into key p
 ## ✨ Features
 
 - 📊 **Real-time KPI Metrics** - Active users, churn rate, and revenue analytics
-- 📈 **Interactive Charts** - Line charts and bar charts with hover interactions
+- 📈 **Interactive Charts** - Multi-region line charts and bar charts with hover interactions
 - 📱 **Responsive Design** - Mobile-first approach with dark theme
 - 🚀 **Serverless Architecture** - Cost-effective and scalable deployment
 - ⚡ **Fast Performance** - Sub-second load times with optimized queries
@@ -67,7 +67,8 @@ bash
 # Test API endpoints
 npm run test-api
 npm run test-churn
-node test-revenue-by-region.js
+npm run test-revenue-all-regions
+node test-revenue-byregion.js
 
 
 ## 📊 Dashboard Metrics
@@ -76,13 +77,13 @@ node test-revenue-by-region.js
 Displays monthly active user count with growth percentage and trend indicators.
 
 ### Churn Rate Card  
-Shows customer churn rate with month-over-month change analysis using inverse color logic (green = decreasing churn).
+Shows customer churn rate with month-over-month change analysis using inverse color logic (green for decreasing churn).
 
-### North America Revenue Chart
-Line chart showing 12 months of revenue trends for the North America region with interactive tooltips.
+### Revenue Trend Chart
+Multi-line chart showing 12 months of revenue trends across all four regions (North America, Europe, Asia Pacific, Latin America) with interactive tooltips.
 
 ### Revenue by Region Chart
-Bar chart comparing revenue across all four regions (North America, Europe, Asia Pacific, Latin America) with performance-based color coding.
+Bar chart comparing revenue across all four regions with performance-based color coding.
 
 ## 📷 Screenshots
 
@@ -221,13 +222,14 @@ npm run preview   # Preview production build
 npm run seed      # Initialize database with mock data
 npm run test-api  # Test active users endpoint
 npm run test-churn # Test churn rate endpoint
+npm run test-revenue-all-regions # Test multi-region revenue trends
 
 
 ### API Endpoints
 
 - `GET /api/active-users` - Active user metrics with growth indicators
 - `GET /api/churn-rate` - Churn rate with month-over-month change
-- `GET /api/north-america-revenue` - 12-month North America revenue trend
+- `GET /api/north-america-revenue` - 12-month multi-region revenue trend (all four regions)
 - `GET /api/revenue-by-region` - Latest revenue comparison by region
 
 ### Database Schema
@@ -237,7 +239,7 @@ npm run test-churn # Test churn rate endpoint
 - Time-series data for trend analysis
 
 **revenue_by_region table:**
-- Geographic revenue distribution
+- Geographic revenue distribution across four regions
 - Regional performance comparison
 
 ## 🧪 Testing
@@ -250,6 +252,7 @@ bash
 # Test individual endpoints
 node test-api.js                    # Active users API
 node test-churn-api.js             # Churn rate API
+node test-north-america-revenue.js # Multi-region revenue API
 node test-revenue-by-region.js     # Regional revenue API
 
 
@@ -265,6 +268,8 @@ npm run dev
 # ✓ Mobile responsive design works
 # ✓ Loading states appear correctly
 # ✓ Error handling shows user-friendly messages
+# ✓ Multi-region trend chart shows all four regions
+# ✓ Regional colors are distinct and consistent
 
 
 ## 📈 Performance
@@ -311,6 +316,7 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history and release notes.
 
 **Latest Release (v1.0.0):**
 - Complete dashboard with 4 core KPI metrics
+- Multi-region revenue trend visualization
 - Responsive design with mobile optimization
 - Serverless API architecture
 - Comprehensive documentation and testing

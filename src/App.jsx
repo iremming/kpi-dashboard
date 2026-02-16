@@ -1,4 +1,4 @@
-import NorthAmericaRevenueChart from './components/NorthAmericaRevenueChart.jsx';
+import RevenueTrendChart from './components/RevenueTrendChart.jsx';
 import RevenueByRegionChart from './components/RevenueByRegionChart.jsx';
 import ActiveUsersCard from './components/ActiveUsersCard.jsx';
 import ChurnRateCard from './components/ChurnRateCard.jsx';
@@ -17,7 +17,7 @@ function App() {
       
       {/* Charts container */}
       <div className="chart-container">
-        <NorthAmericaRevenueChart />
+        <RevenueTrendChart />
       </div>
       
       <div className="chart-container">
