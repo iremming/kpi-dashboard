@@ -57,20 +57,23 @@ export function generateMonthlyMetrics() {
  */
 export function generateRevenueByRegion() {
   const regions = [
-    { name: 'North America', share: 0.45, variance: 0.05 }, // 40-50%
-    { name: 'Europe', share: 0.30, variance: 0.05 }, // 25-35%
-    { name: 'Asia Pacific', share: 0.18, variance: 0.03 }, // 15-21%
-    { name: 'Latin America', share: 0.07, variance: 0.02 } // 5-9%
+    { name: 'North America', share: 0.45, variance: 0.05, growthRate: 0.08 }, // 40-50%, 8% growth
+    { name: 'Europe', share: 0.30, variance: 0.05, growthRate: 0.06 }, // 25-35%, 6% growth
+    { name: 'Asia Pacific', share: 0.18, variance: 0.03, growthRate: 0.12 }, // 15-21%, 12% growth
+    { name: 'Latin America', share: 0.07, variance: 0.02, growthRate: 0.15 } // 5-9%, 15% growth
   ];
   
   const monthlyMetrics = generateMonthlyMetrics();
   const data = [];
   
-  monthlyMetrics.forEach(metric => {
+  monthlyMetrics.forEach((metric, monthIndex) => {
     regions.forEach(region => {
       // Calculate regional share with some monthly variance
       const actualShare = region.share + (Math.random() * region.variance * 2 - region.variance);
-      const revenue = metric.mrr * actualShare;
+      
+      // Apply region-specific growth trend - faster growth for smaller regions
+      const monthGrowth = Math.pow(1 + region.growthRate / 12, monthIndex);
+      const revenue = metric.mrr * actualShare * monthGrowth;
       
       data.push({
         date: metric.date,
