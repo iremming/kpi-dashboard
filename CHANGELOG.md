@@ -1,10 +1,29 @@
---- CHANGELOG.md ---
 # Changelog
 
 All notable changes to the KPI Dashboard project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- **Multi-region Revenue Trend Chart**
+  - Added revenue trend visualization for all four regions (North America, Europe, Asia Pacific, Latin America)
+  - Implemented new RevenueTrendChart component with distinct regional color coding
+  - Updated API endpoint `/api/north-america-revenue.js` to return data for all regions
+  - Line chart displays 12 months of historical revenue data across regions
+
+### Changed
+- **API Endpoint Updates**
+  - Modified `/api/north-america-revenue.js` endpoint to include region data for all four regions
+  - Removed region filtering from SQL query to expand data scope
+  - Updated response structure to include region information for each data point
+
+### Technical Notes
+- **API Documentation**: The `/api/north-america-revenue.js` endpoint now returns data structured with month, date, region, and revenue fields for all regions
+- **Component Updates**: Replaced NorthAmericaRevenueChart with RevenueTrendChart component
+- **Color Scheme**: Regional colors: North America: #60a5fa, Europe: #3b82f6, Asia Pacific: #10b981, Latin America: #f59e0b
 
 ## [1.0.0] - 2025-01-21
 
@@ -150,7 +169,7 @@ When contributing changes:
 4. Reference issue numbers where applicable
 5. Update version number for releases
 
-For more details, see [Development Guide](wiki/Development-Guide.md).
+For more details,see [Development Guide](wiki/Development-Guide.md).
 
 ---
 
